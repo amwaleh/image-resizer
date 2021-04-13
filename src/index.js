@@ -172,20 +172,43 @@ const ClickabeImage = props => {
     }
   };
 
+  const onImgLoad  = ({target:img}) => {
+    console.log({dimensions:{height:img.offsetHeight,
+                               width:img.offsetWidth}});
+}
+
   return (
-    <>
-    <div style={{border:'2px solid red', width: '50px', height: '50px'}}/>
+    <div
+    style={{
+      width: "500px",
+      height: "500px",
+      backgroundColor: "white",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+    >
+    <div style={{
+      width: "300px",
+      height: "300px",
+   
+      position: "absolute",
+      
+      border: '1px solid red'
+      }}/>
     <img
       alt=""
       {...props}
       onClick={handleClick}
+      onLoad={onImgLoad}
       style={{
         ...props.style,
         cursor: "pointer",
-        objectFit: "contain"
+        objectFit: "contain",
+        maxHeight:"600px"
       }}
     />
-    </>
+    </div>
   );
 };
 
@@ -207,7 +230,7 @@ class App extends React.Component {
         original: fileData,
         originalSize: file.size
       });
-      const transformedFile = await transform(file, 500, 500);
+      const transformedFile = await transform(file, 1000, 1000);
       const transformedFileData = URL.createObjectURL(transformedFile);
       this.setState({
         resizedFile: transformedFile,
@@ -255,12 +278,10 @@ class App extends React.Component {
               <h3>Original</h3>
               <ClickabeImage
                 src={original}
-                width="400"
-                height="400"
+               
                 alt="original"
               />
               <br />
-              //Math.round(bytes/1024)+' KB';
               
               <div>Original size: {formatter.format(Math.round(originalSize/(1048576)))} bytes</div>
             </div>
@@ -271,8 +292,8 @@ class App extends React.Component {
               <h3>Resized</h3>
               <ClickabeImage
                 src={resized}
-                width="400"
-                height="400"
+                width="300"
+                height="300"
                 alt="resized"
               />
               <br />
