@@ -12,7 +12,7 @@ const formatter = new Intl.NumberFormat(undefined, {
  */
 if (!HTMLCanvasElement.prototype.toBlob) {
   Object.defineProperty(HTMLCanvasElement.prototype, "toBlob", {
-    value: function(callback, type, quality) {
+    value: function (callback, type, quality) {
       const dataURL = this.toDataURL(type, quality).split(",")[1];
       setTimeout(() => {
         const binStr = atob(dataURL),
@@ -32,7 +32,7 @@ if (!HTMLCanvasElement.prototype.toBlob) {
  * @param {File} file
  * @return {string}
  */
-const toBase64 = file => {
+const toBase64 = (file) => {
   if (!(file instanceof File) && !(file instanceof Blob)) return;
 
   const reader = new FileReader();
@@ -59,7 +59,7 @@ const toBase64 = file => {
  * @param {string} data
  * @return {Image}
  */
-const createImageFromBase64 = data =>
+const createImageFromBase64 = (data) =>
   new Promise((resolve, reject) => {
     const img = new Image();
     img.src = data;
@@ -104,7 +104,7 @@ const getDimensionsProportionally = ({
 const writeContextToFile = ({ context, quality = 1, fileType, fileName }) =>
   new Promise((resolve, reject) => {
     context.canvas.toBlob(
-      blob => {
+      (blob) => {
         let transformedImageFile;
         if (navigator.msSaveBlob) {
           // if in Microsoft Edge, then fake the "Blob" to
@@ -165,49 +165,48 @@ const transform = async (file, maxWidth, maxHeight) => {
   return transformedFile;
 };
 
-const ClickabeImage = props => {
+const ClickabeImage = (props) => {
   const handleClick = () => {
     if (props.src) {
       window.open(props.src, "_blank");
     }
   };
 
-  const onImgLoad  = ({target:img}) => {
-    console.log({dimensions:{height:img.offsetHeight,
-                               width:img.offsetWidth}});
-}
+ 
 
   return (
     <div
-    style={{
-      width: "500px",
-      height: "500px",
-      backgroundColor: "white",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-    }}
-    >
-    <div style={{
-      width: "300px",
-      height: "300px",
-   
-      position: "absolute",
-      
-      border: '1px solid red'
-      }}/>
-    <img
-      alt=""
-      {...props}
-      onClick={handleClick}
-      onLoad={onImgLoad}
       style={{
-        ...props.style,
-        cursor: "pointer",
-        objectFit: "contain",
-        maxHeight:"600px"
+        width: "500px",
+        height: "500px",
+        backgroundColor: "white",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
       }}
-    />
+    >
+      <div
+        style={{
+          width: "300px",
+          height: "300px",
+
+          position: "absolute",
+
+          border: "1px solid red"
+        }}
+      />
+      <img
+        alt=""
+        {...props}
+        onClick={handleClick}
+        onLoad={props.onImgLoad}
+        style={{
+          ...props.style,
+          cursor: "pointer",
+          objectFit: "contain"
+          // maxHeight:"600px"
+        }}
+      />
     </div>
   );
 };
@@ -220,7 +219,7 @@ class App extends React.Component {
     resizedSize: 0
   };
 
-  _onChange = async event => {
+  _onChange = async (event) => {
     if (event.target.files && event.target.files.length) {
       const file = event.target.files[0];
       const fileData = URL.createObjectURL(file);
@@ -238,6 +237,16 @@ class App extends React.Component {
         resizedSize: transformedFile.size,
         finishedAt: new Date()
       });
+      console.log(this.state);
+    }
+  };
+  onImgLoad = ({ target: img }) => {
+    console.log({
+      dimensions: { height: img.offsetHeight, width: img.offsetWidth }
+    });
+
+    if (img.offsetWidth < 400 && img.offsetHeight < 400) {
+      alert("The image resolution is too low.");
     }
   };
 
@@ -276,14 +285,13 @@ class App extends React.Component {
           {original ? (
             <div style={{ flex: 1, marginRight: 8 }}>
               <h3>Original</h3>
-              <ClickabeImage
-                src={original}
-               
-                alt="original"
-              />
+              <ClickabeImage src={original} alt="original" onload={this.onImgLoad} />
               <br />
-              
-              <div>Original size: {formatter.format(Math.round(originalSize/(1048576)))} bytes</div>
+
+              <div>
+                Original size:{" "}
+                {formatter.format(Math.round(originalSize / 1048576))} bytes
+              </div>
             </div>
           ) : null}
 
@@ -292,13 +300,17 @@ class App extends React.Component {
               <h3>Resized</h3>
               <ClickabeImage
                 src={resized}
-                width="300"
-                height="300"
+                width="400"
+                height="400"
                 alt="resized"
+                
               />
               <br />
               <div>Resized size: {formatter.format(resizedSize)} bytes</div>
               <div>Saved: {formatter.format(saved)} %</div>
+              <a href={this.state.resized} download>
+                download{" "}
+              </a>
               {startedAt && finishedAt ? (
                 <div>
                   Time spent:{" "}
