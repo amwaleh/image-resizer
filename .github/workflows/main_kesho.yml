@@ -29,13 +29,9 @@ jobs:
           npm run build --if-present
           
       - name: Zip Release
-        # You may pin to the exact commit or the version.
-        # uses: TheDoctor0/zip-release@a24011d8d445e4da5935a7e73c1f98e22a439464
         uses: TheDoctor0/zip-release@0.7.1
         with:
-          # Filename for archive
           filename: build.zip
-          # Working directory before zipping
           directory: ./build/*
           
       - name: Upload artifact for deployment job
