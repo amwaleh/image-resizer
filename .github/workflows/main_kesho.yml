@@ -32,7 +32,7 @@ jobs:
         uses: TheDoctor0/zip-release@0.7.1
         with:
           filename: build.zip
-          directory: ./build/*
+          path: ./build/*
           
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
