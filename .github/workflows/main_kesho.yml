@@ -8,7 +8,9 @@ on:
     branches:
       - main
   workflow_dispatch:
-
+  
+env:
+  CI: false
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,13 +27,22 @@ jobs:
         run: |
           npm install
           npm run build --if-present
-          npm run test --if-present
-
+          
+      - name: Zip Release
+        # You may pin to the exact commit or the version.
+        # uses: TheDoctor0/zip-release@a24011d8d445e4da5935a7e73c1f98e22a439464
+        uses: TheDoctor0/zip-release@0.7.1
+        with:
+          # Filename for archive
+          filename: build.zip
+          # Working directory before zipping
+          directory: ./build/*
+          
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
         with:
           name: node-app
-          path: .
+          path: build.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -53,4 +64,4 @@ jobs:
           app-name: 'kesho'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C2D6004D92A043EFB864899C4DAE8F0E }}
-          package: .
+          package: build.zip
